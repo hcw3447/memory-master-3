@@ -56,7 +56,6 @@ export function QuizScreen({
   const pool = useMemo(() => buildQueue(WORDS.map((w) => w.id), progress), [])
   const poolCursor = useRef(SEED_WORDS)
   const [queue, setQueue] = useState<string[]>(() => pool.slice(0, SEED_WORDS))
-  const [seen, setSeen] = useState<Record<string, number>>({})
   const [stages, setStages] = useState<Record<string, number>>(() =>
     Object.fromEntries(WORDS.map((w) => [w.id, progress[w.id]?.stage ?? 0])),
   )
@@ -75,7 +74,8 @@ export function QuizScreen({
 
   const currentId = queue[index] ?? queue[queue.length - 1]
   const word = WORD_MAP[currentId]
-  const isReview = (seen[currentId] ?? 0) > 0
+  // 이미 출제된 적이 있으면 복습 문제. 큐의 "지나간" 구간만 보므로 답을 채점해도 값이 바뀌지 않는다.
+  const isReview = useMemo(() => queue.slice(0, index).includes(currentId), [queue, index, currentId])
   const mode: 'en2ko' | 'ko2en' = isReview || index % 3 === 2 ? 'ko2en' : 'en2ko'
 
   const options = useMemo(() => {
@@ -109,7 +109,6 @@ export function QuizScreen({
       setGained(points)
       setScore((s) => s + points)
       setStages((s) => ({ ...s, [currentId]: nextStage }))
-      setSeen((s) => ({ ...s, [currentId]: (s[currentId] ?? 0) + 1 }))
 
       if (isCorrect) {
         setCorrectCount((c) => c + 1)
@@ -314,7 +313,7 @@ export function QuizScreen({
                 <Volume2 className="size-3.5 text-primary" aria-hidden="true" />
               </button>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                {word.meaning} · {word.phonetic}
+                {word.meaning} · <span className="font-display">{word.phonetic}</span>
               </p>
             </div>
           </div>

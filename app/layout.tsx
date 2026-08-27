@@ -4,13 +4,13 @@ import { Space_Grotesk, Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
+  subsets: ['latin', 'latin-ext'],
   variable: '--font-display',
   weight: ['500', '600', '700'],
 })
 
 const notoSansKr = Noto_Sans_KR({
-  subsets: ['latin'],
+  subsets: ['latin', 'korean'],
   variable: '--font-body',
   weight: ['400', '500', '700'],
 })
